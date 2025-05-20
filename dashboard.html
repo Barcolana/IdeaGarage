@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - IdeaGarage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+      <h1 id="dashboardTitle">Benvenuto nella tua Dashboard!</h1>
+      <p id="welcomeMessage"></p>
+      <div class="avatar-container">
+        <img id="userAvatar" src="default-avatar.jpg" alt="Avatar Utente">
+      </div>
+      <input type="file" id="avatarInput" accept="image/*">
+      <button id="uploadAvatar">Cambia Avatar</button>
+
+      <p>Carica schema elettrico</p>
+      <input type="file" id="circuitInput" accept=".png, .jpg, .jpeg, .pdf" />
+
+      <div id="imageContainer" style="display: none; border: 1px solid #df2a2a; padding: 10px; text-align: center; max-width: 800px;">
+        <img id="circuitPreview" style="max-width: 100%; height: auto;" />
+        <canvas id="pdfCanvas" style="display: none;"></canvas>
+      </div>
+
+      <h3>🧠 Testo riconosciuto (OCR):</h3>
+      <pre id="ocrOutput" style="background: #f0f0f0; padding: 10px;"></pre>
+
+      <!-- Librerie JS -->
+      <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const input = document.getElementById("circuitInput");
+            const preview = document.getElementById("circuitPreview");
+            const canvas = document.getElementById("pdfCanvas");
+            const container = document.getElementById("imageContainer");
+            const output = document.getElementById("ocrOutput");
+
+            input.addEventListener("change", (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const fileType = file.type;
+
+                if (fileType.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageUrl = e.target.result;
+                        preview.src = imageUrl;
+                        container.style.display = "block";
+                        alert(`Schema elettrico "${file.name}" caricato con successo!`);
+                        runOCR(imageUrl);
+                    };
+                    reader.readAsDataURL(file);
+                } else if (fileType === "application/pdf") {
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        const typedarray = new Uint8Array(this.result);
+
+                        pdfjsLib.getDocument({ data: typedarray }).promise.then(pdf => {
+                            pdf.getPage(1).then(page => {
+                                const scale = 2;
+                                const viewport = page.getViewport({ scale });
+                                const context = canvas.getContext('2d');
+                                canvas.width = viewport.width;
+                                canvas.height = viewport.height;
+
+                                page.render({ canvasContext: context, viewport: viewport }).promise.then(() => {
+                                    const imageDataUrl = canvas.toDataURL("image/png");
+                                    preview.src = imageDataUrl;
+                                    container.style.display = "block";
+                                    alert(`PDF "${file.name}" caricato con successo!`);
+                                    runOCR(imageDataUrl);
+                                });
+                            });
+                        });
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    alert("Formato non supportato. Carica un'immagine o un PDF.");
+                }
+
+                function runOCR(imageDataUrl) {
+                    output.textContent = "🕒 Analisi OCR in corso...";
+                    Tesseract.recognize(imageDataUrl, 'eng', {
+                        logger: m => console.log(m)
+                    }).then(({ data: { text } }) => {
+                        output.textContent = text || "(Nessun testo riconosciuto)";
+                    }).catch(err => {
+                        output.textContent = "Errore durante l'elaborazione OCR.";
+                        console.error(err);
+                    });
+                }
+            });
+        });
+      </script>
+
+      <button id="logoutBtn">Esci</button>
+    </div>
+
+    <script>
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.clear();
+            window.location.href = "index.html";
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

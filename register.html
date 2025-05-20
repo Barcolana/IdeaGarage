@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrati - IdeaGarage</title>
+    <link rel="stylesheet" href="style.css"> <!-- Collega il CSS -->
+</head>
+<body>
+    <div class="container">
+        <h2>Registrati su IdeaGarage</h2>
+        <form id="registerForm">
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+             <!-- ✅ Checkbox Accetto Termini -->
+    <div class="checkbox-container">
+        <input type="checkbox" id="terms" required>
+        <label for="terms">Accetto i <a href="terms.html">Termini e Condizioni</a></label>
+    </div>
+
+    <button type="submit" class="register">Crea Account</button>
+        </form>
+    </div>
+
+    <script src="script.js"></script> <!-- Collega il JS -->
+</body>
+</html>
