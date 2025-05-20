@@ -1,0 +1,1 @@
+This application allows users to upload images of electrical diagrams (in JPG/PNG/PDF format), view them, and automatically extract text using OCR technology. It is designed to assist in reading and understanding schematics, and serves as a practical example of frontend + OCR integration.
